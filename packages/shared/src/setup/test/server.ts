@@ -19,13 +19,11 @@ export const createRestHandler = (
 
 export const startMockServer = (server: SetupServerApi) => {
   beforeAll(() => {
-    // vi.useFakeTimers();
     server.listen({ onUnhandledRequest: 'error' });
   });
 
   //  Close server after all tests
   afterAll(() => {
-    // vi.useRealTimers();
     server.close();
   });
 
