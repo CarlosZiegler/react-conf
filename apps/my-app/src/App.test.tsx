@@ -1,5 +1,6 @@
-import React from 'react';
-import { describe, expect, test, beforeEach,  } from 'vitest';
+import React from "react";
+import { describe, expect, test, beforeEach, beforeAll } from "vitest";
+
 import {
   render,
   screen,
@@ -7,48 +8,125 @@ import {
   createMockServer,
   createRestHandler,
   startMockServer,
-  act,
+  waitFor,
+} from "shared";
+import App from "./App";
 
-} from 'shared';
-import App from './App';
-import { apiRoutes } from './routes';
-import { userService } from './services';
-import { mockUser } from './__test__/mocks';
-import { LocalTestContext } from './interfaces';
+import { LocalTestContext } from "./interfaces";
+import { UserStore } from "./store";
+import { mockUser } from "./__test__/mocks";
+import { routes } from "./routes";
 
-
-
-describe('App', () => {
-  beforeEach<LocalTestContext>(async (context) => {
+describe("App", () => {
+  beforeAll(async () => {
     setupTests();
-    // typeof context is 'TestContext & LocalTestContext'
-    context.buttonLabel = 'Fetch User';
-    context.mockUser = mockUser 
+  });
+  beforeEach<LocalTestContext>(async (context) => {
+    context.buttonLabel = "Login";
   });
 
-  test<LocalTestContext>('Button be defined', async (context) => {
-    render(<App />);
-
-    const button = await screen.findByText(context.buttonLabel);
-    expect(button).toBeDefined();
-  });
-
-  test<LocalTestContext>('Fetch user if clicked on button', async (context) => {
+  test<LocalTestContext>("If user is not logged in, page will be render Login view", async (context) => {
     const wrapper = render(<App />);
     const button = wrapper.getByText(context.buttonLabel);
-    await userEvent.click(button);
 
-    const name = await wrapper.findByText(context.mockUser.name);
-    expect(name).toBeDefined(); 
+    expect(button).toBeDefined();
+    expect(screen.getByText(/welcome back!/i)).toBeDefined();
+    expect(screen.getByText(/email/i)).toBeDefined();
+    expect(screen.getByText(/password/i)).toBeDefined();
   });
-  
-});
 
+  test<LocalTestContext>("In Login View, button to submit form should be disabled if inputs is empty", async (context) => {
+    render(<App />);
+
+    const emailInput = screen.getByRole("textbox", {
+      name: /email/i,
+    });
+
+    const button = screen.getByRole<HTMLButtonElement>("button", {
+      name: /sign in/i,
+    });
+
+    expect(button).toBeDefined();
+    expect(emailInput.nodeValue).toBeNull();
+    expect(button.closest("button")).toHaveProperty("disabled");
+  });
+  test<LocalTestContext>("If mail input not in correctly format, error message should be in the Document and button still disabled", async (context) => {
+    render(<App />);
+
+    const emailInput = screen.getByRole("textbox", {
+      name: /email/i,
+    });
+    const passwordInput =
+      screen.getByPlaceholderText<HTMLTextAreaElement>(/your password/i);
+    // use UserEvent to simulate user input
+    await userEvent.type(emailInput, "erickwendel.com");
+    await userEvent.type(passwordInput, "54545");
+    const button = screen.getByRole<HTMLButtonElement>("button", {
+      name: /sign in/i,
+    });
+
+    expect(passwordInput.value).toBe("54545");
+    expect(screen.getByText(/email must be a valid email/i)).toBeDefined();
+    expect(button.disabled).toBeTruthy();
+  });
+  test<LocalTestContext>("If mail input correctly format, button should be changed to enabled", async (context) => {
+    render(<App />);
+
+    const emailInput = screen.getByRole("textbox", {
+      name: /email/i,
+    });
+    const passwordInput =
+      screen.getByPlaceholderText<HTMLTextAreaElement>(/your password/i);
+
+    await userEvent.type(emailInput, "filipedeschamps@gmail.com");
+    await userEvent.type(passwordInput, "tabnews");
+    const button = await screen.findByRole<HTMLButtonElement>("button", {
+      name: /sign in/i,
+    });
+
+    expect(button.disabled).toBeFalsy();
+  });
+  test<LocalTestContext>("If user fully correct inputs and press button, page will be redirect to dashboard", async (context) => {
+    render(<App />);
+    const user = userEvent.setup();
+    const emailInput = screen.getByRole("textbox", {
+      name: /email/i,
+    });
+    const passwordInput =
+      screen.getByPlaceholderText<HTMLTextAreaElement>(/your password/i);
+
+    await user.type(emailInput, "filipedeschamps@gmail.com");
+    await user.type(passwordInput, "tabnews");
+    const button = await screen.findByRole<HTMLButtonElement>("button", {
+      name: /sign in/i,
+    });
+
+    expect(button.disabled).toBeFalsy();
+    await user.click(button);
+
+    await waitFor(() => {
+      expect(screen.getByText(/Shanna@melissa.tv/i)).toBeDefined();
+      expect(screen.getByText(/Ervin Howell/i)).toBeDefined();
+      expect(screen.getByRole("img")).toBeDefined();
+    });
+  });
+  test<LocalTestContext>("If user is logged, page will be render dashboard view", async (context) => {
+    UserStore.setUser(mockUser);
+    const wrapper = render(<App />);
+    const button = wrapper.getByRole("button", {
+      name: /fetch client/i,
+    });
+    expect(button).toBeDefined();
+    expect(screen.getByText(/sincere@april\.biz/i)).toBeDefined();
+    expect(screen.getByText(/leanne graham/i)).toBeDefined();
+    expect(screen.getByRole("img")).toBeDefined();
+  });
+});
 
 const setupTests = () => {
   const mockRequestGetUser = createRestHandler(
-    'get',
-    `${apiRoutes.users}/${1}`,
+    "get",
+    `${routes.api.users}/22`,
     200,
     mockUser
   );

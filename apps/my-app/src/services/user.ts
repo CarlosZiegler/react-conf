@@ -1,6 +1,6 @@
-import { api } from '../api';
+import { api } from "../api";
 
-import { apiRoutes } from '../routes';
+import { routes } from "../routes";
 
 export const getUserProfile = async (id: number) =>
-  api.get<any>(`${apiRoutes.users}/${id}`);
+  api.get<any>(`${routes.api.users}/${id}`);
