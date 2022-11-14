@@ -9,6 +9,7 @@
     "preview": "vite preview",
     "test": "vitest run",
     "test:watch": "vitest --watch",
+    "test:bench": "vitest bench",
     "test:coverage": "vitest run --coverage",
     "test:ui": "vitest --ui"
   },
@@ -16,8 +17,8 @@
     "axios": "^1.1.2",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "shared": "*",
     "vite-plugin-checker": "^0.5.1",
+    "shared": "*",
     "ziegler-ui": "*"
   },
   "devDependencies": {
