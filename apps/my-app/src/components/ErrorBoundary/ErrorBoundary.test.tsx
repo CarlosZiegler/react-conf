@@ -16,13 +16,16 @@ const BoomComponent: FC<Props> = ({ shouldThrowError }) => {
 
   return <div>Render Success</div>;
 };
+const originalError = console.error;
 
 describe("Boudary Error test", () => {
   beforeEach(() => {
+    console.error = vi.fn();
     vi.useFakeTimers();
   });
   afterEach(() => {
     vi.useRealTimers();
+    console.error = originalError;
   });
   test("should be not throw error", () => {
     render(
