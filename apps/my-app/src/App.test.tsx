@@ -67,6 +67,7 @@ describe("App", () => {
 
     expect(passwordInput.value).toBe("54545");
     expect(screen.getByText(/email must be a valid email/i)).toBeDefined();
+    screen.logTestingPlaygroundURL();
     expect(button.disabled).toBeTruthy();
   });
   test<LocalTestContext>("If mail input correctly format, button should be changed to enabled", async (context) => {

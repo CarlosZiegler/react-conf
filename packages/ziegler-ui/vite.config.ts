@@ -1,11 +1,11 @@
 /// <reference types="vitest" />
 /// <reference types="vite/client" />
 
-import { defineConfig } from 'vite';
-import react from '@vitejs/plugin-react';
-import checker from 'vite-plugin-checker';
-import dts from 'vite-plugin-dts';
-import path from 'node:path';
+import { defineConfig } from "vite";
+import react from "@vitejs/plugin-react";
+import checker from "vite-plugin-checker";
+import dts from "vite-plugin-dts";
+import path from "node:path";
 
 // https://vitejs.dev/config/
 export default defineConfig({
@@ -15,35 +15,34 @@ export default defineConfig({
       enableBuild: true,
     }),
     react({
-      jsxRuntime: 'automatic',
+      jsxRuntime: "automatic",
     }),
     dts({
       insertTypesEntry: true,
       rollupTypes: true,
       logDiagnostics: true,
-      // noEmitOnError: true,
     }),
   ],
   test: {
     globals: true,
-    environment: 'jsdom',
-    setupFiles: ['./src/setup/global.ts'],
+    environment: "jsdom",
+    setupFiles: ["./src/setup/global.ts"],
     testTimeout: 15000,
   },
 
   build: {
     lib: {
-      entry: path.resolve(__dirname, 'src/index.ts'),
-      name: 'ziegler-ui',
-      formats: ['es', 'cjs'],
+      entry: path.resolve(__dirname, "src/index.ts"),
+      name: "ziegler-ui",
+      formats: ["es", "cjs"],
       fileName: (format) => `index.${format}.js`,
     },
     rollupOptions: {
-      external: ['react', 'react-dom'],
+      external: ["react", "react-dom"],
       output: {
         globals: {
-          react: 'React',
-          'react-dom': 'ReactDOM',
+          react: "React",
+          "react-dom": "ReactDOM",
         },
       },
     },
